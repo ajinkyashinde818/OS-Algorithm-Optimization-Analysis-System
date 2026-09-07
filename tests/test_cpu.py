@@ -1,63 +1,79 @@
 from models.process import Process
 from algorithms.cpu_scheduling.fcfs import fcfs
 from algorithms.cpu_scheduling.sjf import sjf
+from algorithms.cpu_scheduling.srtf import srtf
+from algorithms.cpu_scheduling.priority import priority_non_preemptive
+from algorithms.cpu_scheduling.priority import priority_preemptive
+from algorithms.cpu_scheduling.round_robin import round_robin
+from analysis.cpu_metrics import calculate_cpu_metrics
 
-# First come first Serve
-# Create sample processes
+
+
+from analysis.optimizer import (
+    compare_cpu_algorithms,
+    find_best_algorithm
+)
+
+
+# Create processes
+
 processes = [
-    Process("P1", 0, 5, 2),
-    Process("P2", 1, 3, 1),
-    Process("P3", 2, 2, 3)
+
+    Process("P1", 0, 8, 3),
+
+    Process("P2", 1, 4, 1),
+
+    Process("P3", 2, 2, 2)
+
 ]
 
 
-# Run FCFS algorithm
-result_processes, gantt_chart = fcfs(processes)
+# Compare algorithms
+
+results = compare_cpu_algorithms(
+    processes,
+    time_quantum=2
+)
 
 
-# Print process results
-print("\nFCFS Results:\n")
+# Print algorithm metrics
 
-for process in result_processes:
+print("\nCPU Algorithm Comparison\n")
+
+for algorithm, data in results.items():
+
+    print(f"\n{algorithm}")
+
+    for metric, value in data["metrics"].items():
+
+        print(
+            f"{metric}: {round(value, 2)}"
+        )
+
+
+# Find best algorithm
+
+best_algorithm, scores = find_best_algorithm(
+    results
+)
+
+
+# Print optimization scores
+
+print("\n📊 Optimization Scores:\n")
+
+for algorithm, score_data in scores.items():
+
     print(
-        process.process_id,
-        "| Completion:", process.completion_time,
-        "| Waiting:", process.waiting_time,
-        "| Turnaround:", process.turnaround_time,
-        "| Response:", process.response_time
+        algorithm,
+        "→",
+        round(score_data["final_score"], 3)
     )
 
 
-# Print Gantt Chart data
-print("\nGantt Chart:\n")
+# Print recommended algorithm
 
-for item in gantt_chart:
-    print(item)
-
-
-
-# Shortest Job First
-
-processes = [
-    Process("P1", 0, 6),
-    Process("P2", 1, 2),
-    Process("P3", 2, 4)
-]
-
-result_processes, gantt_chart = sjf(processes)
-
-print("\nSJF Results:\n")
-
-for process in result_processes:
-    print(
-        process.process_id,
-        "| Completion:", process.completion_time,
-        "| Waiting:", process.waiting_time,
-        "| Turnaround:", process.turnaround_time,
-        "| Response:", process.response_time
-    )
-
-print("\nGantt Chart:\n")
-
-for item in gantt_chart:
-    print(item)
+print(
+    "\n🏆 Recommended Algorithm:",
+    best_algorithm
+)
